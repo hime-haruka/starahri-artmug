@@ -186,6 +186,7 @@ const appState = {
   processPendingCategory: '',
   parentViewport: null,
   standaloneObserver: null,
+  revealViewportFrame: 0,
   formQty: {}
 };
 
@@ -1477,7 +1478,9 @@ function renderAll() {
   refreshRevealTargets();
   setupPremiumMotion();
   decorateMotion();
-  applyCurrentViewport();
+  requestAnimationFrame(() => {
+    requestAnimationFrame(applyCurrentViewport);
+  });
 }
 
 function revealSelector() {
@@ -1525,16 +1528,22 @@ function updateQuickActive() {}
 function applyParentViewport(viewport) {
   if (!viewport) return;
   appState.parentViewport = viewport;
-  const top = Number(viewport.visibleTop) || 0;
-  const bottom = Number(viewport.visibleBottom) || 0;
-  document.querySelectorAll('.scroll-reveal').forEach(el => {
-    const rect = el.getBoundingClientRect();
-    const margin = Math.min(64, Math.max(18, (bottom - top) * 0.07));
-    const visible = bottom > top && rect.bottom > top + margin && rect.top < bottom - margin;
-    el.classList.toggle('is-revealed', visible);
-  });
   syncImageModalViewport(viewport);
   updateQuickMenu(viewport);
+  if (appState.revealViewportFrame) cancelAnimationFrame(appState.revealViewportFrame);
+  appState.revealViewportFrame = requestAnimationFrame(() => {
+    appState.revealViewportFrame = 0;
+    const current = appState.parentViewport;
+    if (!current) return;
+    const top = Number(current.visibleTop) || 0;
+    const bottom = Number(current.visibleBottom) || 0;
+    const margin = Math.min(64, Math.max(18, (bottom - top) * 0.07));
+    document.querySelectorAll('.scroll-reveal').forEach(el => {
+      const rect = el.getBoundingClientRect();
+      const visible = bottom > top && rect.bottom > top + margin && rect.top < bottom - margin;
+      el.classList.toggle('is-revealed', visible);
+    });
+  });
 }
 
 function applyCurrentViewport() {
