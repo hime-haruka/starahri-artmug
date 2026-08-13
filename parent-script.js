@@ -26,14 +26,6 @@ var butterflyY=0;
 var butterflyFrame=0;
 var butterflySeen=false;
 var butterflyFinePointer=true;
-var initialScrollDone=false;
-var initialScrollY=null;
-var initialScrollFrame=0;
-var initialScrollReadyTimer=0;
-var initialScrollLoaded=false;
-var initialScrollHeightSynced=false;
-var initialScrollUserInteracted=false;
-var initialScrollAnimating=false;
 function q(selector){try{return document.querySelector(selector)}catch(e){return null}}
 function findIframe(){
 var found=document.getElementById(iframeId);
@@ -94,7 +86,7 @@ var gap=18;
 var rightSpace=vw-rect.right;
 var top=Math.max(18,stickyOffset+70);
 var hasSpace=rightSpace>=width+gap+8;
-var visible=hasSpace&&rect.bottom>top+20&&rect.top<vh-20&&quickItems.length>0;var scrollable=Math.max(1,rect.height-vh+top);var progress=Math.max(0,Math.min(1,(top-rect.top)/scrollable));quickNav.style.setProperty('--amq-progress',String(progress));
+var visible=hasSpace&&quickItems.length>0;var scrollable=Math.max(1,rect.height-vh+top);var progress=Math.max(0,Math.min(1,(top-rect.top)/scrollable));quickNav.style.setProperty('--amq-progress',String(progress));
 quickNav.style.top=top+"px";
 quickNav.style.left=Math.round(rect.right+gap)+"px";
 quickNav.classList.toggle("amq-visible",visible);
@@ -163,82 +155,12 @@ var visibleBottom=Math.max(visibleTop,Math.min(rect.height,viewportHeight-rect.t
 post({type:"artmugPortfolio:viewport",frameTop:rect.top,frameLeft:rect.left,frameWidth:rect.width,frameHeight:rect.height,visibleTop:visibleTop,visibleBottom:visibleBottom,viewportHeight:viewportHeight,viewportWidth:viewportWidth,scrollY:window.pageYOffset||document.documentElement.scrollTop,stickyOffset:stickyOffset});
 positionQuickNav();
 }
-function getPageScrollY(){
-return window.pageYOffset||document.documentElement.scrollTop||document.body.scrollTop||0;
-}
-function getInitialScrollTarget(){
-if(!iframe||!iframe.getBoundingClientRect)return null;
-var configuredOffset=Number(config.autoScrollOffset);
-var offset=Number.isFinite(configuredOffset)?Math.max(0,configuredOffset):0;
-var rect=iframe.getBoundingClientRect();
-return Math.max(0,Math.round(rect.top+getPageScrollY()-offset));
-}
-function cancelInitialIframeScroll(){
-initialScrollUserInteracted=true;
-if(initialScrollReadyTimer){clearTimeout(initialScrollReadyTimer);initialScrollReadyTimer=0}
-if(initialScrollFrame){cancelAnimationFrame(initialScrollFrame);initialScrollFrame=0}
-initialScrollAnimating=false;
-}
-function markInitialScrollInteraction(event){
-if(initialScrollDone&&!initialScrollAnimating)return;
-if(event&&event.type==="keydown"){
-var key=event.key;
-if(key!=="ArrowDown"&&key!=="ArrowUp"&&key!=="PageDown"&&key!=="PageUp"&&key!=="Home"&&key!=="End"&&key!==" ")return;
-}
-cancelInitialIframeScroll();
-}
-function animateInitialIframeScroll(target){
-if(initialScrollDone||initialScrollUserInteracted)return;
-var startY=getPageScrollY();
-var distance=target-startY;
-if(Math.abs(distance)<2){initialScrollDone=true;initialScrollY=target;scheduleViewport();return}
-var configuredDuration=Number(config.autoScrollDuration);
-var duration=Number.isFinite(configuredDuration)?Math.max(350,Math.min(1400,configuredDuration)):780;
-var startTime=0;
-initialScrollAnimating=true;
-function step(timestamp){
-if(initialScrollUserInteracted){initialScrollFrame=0;initialScrollAnimating=false;return}
-if(!startTime)startTime=timestamp;
-var progress=Math.min(1,(timestamp-startTime)/duration);
-var eased=progress<.5?4*progress*progress*progress:1-Math.pow(-2*progress+2,3)/2;
-var next=startY+distance*eased;
-window.scrollTo(0,next);
-scheduleViewport();
-if(progress<1){initialScrollFrame=requestAnimationFrame(step);return}
-initialScrollFrame=0;
-initialScrollAnimating=false;
-initialScrollDone=true;
-initialScrollY=target;
-window.scrollTo(0,target);
-scheduleViewport();
-}
-initialScrollFrame=requestAnimationFrame(step);
-}
-function scrollToIframeOnEntry(){
-if(initialScrollDone||initialScrollUserInteracted||config.autoScrollToIframe===false||!iframe)return;
-if(window.location&&window.location.hash){initialScrollDone=true;return}
-var target=getInitialScrollTarget();
-if(target===null)return;
-initialScrollY=target;
-animateInitialIframeScroll(target);
-}
-function scheduleInitialIframeScroll(){
-if(initialScrollDone||initialScrollUserInteracted||config.autoScrollToIframe===false)return;
-if(!initialScrollLoaded||!initialScrollHeightSynced)return;
-if(initialScrollReadyTimer)clearTimeout(initialScrollReadyTimer);
-initialScrollReadyTimer=setTimeout(function(){
-initialScrollReadyTimer=0;
-requestAnimationFrame(function(){requestAnimationFrame(scrollToIframeOnEntry)});
-},220);
-}
 function setHeight(height){
 if(!iframe)return;
 var next=Math.max(300,Math.ceil(Number(height)||0));
 iframe.style.height=next+"px";
 iframe.setAttribute("height",String(next));
-initialScrollHeightSynced=true;
 sendViewport();
-scheduleInitialIframeScroll();
 }
 function scheduleViewport(){
 if(viewportTick)return;
@@ -295,11 +217,8 @@ if(!iframe.id)iframe.id=iframeId;
 styleIframe();
 binded=true;
 ensureQuickNav();
-iframe.addEventListener("load",function(){initialScrollLoaded=true;styleIframe();post({type:"artmugPortfolio:requestHeight"});sendViewport();scheduleInitialIframeScroll()});
+iframe.addEventListener("load",function(){styleIframe();post({type:"artmugPortfolio:requestHeight"});sendViewport()});
 window.addEventListener("scroll",scheduleViewport,{passive:true});
-window.addEventListener("wheel",markInitialScrollInteraction,{passive:true});
-window.addEventListener("touchstart",markInitialScrollInteraction,{passive:true});
-window.addEventListener("keydown",markInitialScrollInteraction);
 window.addEventListener("resize",function(){styleIframe();scheduleViewport()});
 window.addEventListener("orientationchange",function(){styleIframe();scheduleViewport()});
 if(window.ResizeObserver&&iframe.parentElement){
