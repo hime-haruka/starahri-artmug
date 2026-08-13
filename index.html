@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="color-scheme" content="light">
+  <title>별아리 Live2D Rigging</title>
+  <link rel="preconnect" href="https://cdn.jsdelivr.net">
+  <link rel="stylesheet" href="./rigging.css">
+  <link rel="stylesheet" href="./studio-theme.css">
+</head>
+<body>
+  <main id="app" class="page-shell">
+    <div class="page-rail page-rail-left" aria-hidden="true">
+      <span class="page-rail-line"></span>
+      <span class="page-rail-pattern"></span>
+      <svg class="page-rail-accent page-rail-accent-a" viewBox="0 0 20 20"><path d="M10 0C10.7 6.1 13.9 9.3 20 10C13.9 10.7 10.7 13.9 10 20C9.3 13.9 6.1 10.7 0 10C6.1 9.3 9.3 6.1 10 0Z"/></svg>
+      <svg class="page-rail-accent page-rail-accent-b" viewBox="0 0 20 20"><path d="M10 0C10.7 6.1 13.9 9.3 20 10C13.9 10.7 10.7 13.9 10 20C9.3 13.9 6.1 10.7 0 10C6.1 9.3 9.3 6.1 10 0Z"/></svg>
+    </div>
+    <div class="page-rail page-rail-right" aria-hidden="true">
+      <span class="page-rail-line"></span>
+      <span class="page-rail-pattern"></span>
+      <svg class="page-rail-accent page-rail-accent-a" viewBox="0 0 20 20"><path d="M10 0C10.7 6.1 13.9 9.3 20 10C13.9 10.7 10.7 13.9 10 20C9.3 13.9 6.1 10.7 0 10C6.1 9.3 9.3 6.1 10 0Z"/></svg>
+      <svg class="page-rail-accent page-rail-accent-b" viewBox="0 0 20 20"><path d="M10 0C10.7 6.1 13.9 9.3 20 10C13.9 10.7 10.7 13.9 10 20C9.3 13.9 6.1 10.7 0 10C6.1 9.3 9.3 6.1 10 0Z"/></svg>
+    </div>
+    <section class="hero scroll-reveal" aria-labelledby="heroTitle">
+      <div class="hero-glow hero-glow-a"></div>
+      <div class="hero-glow hero-glow-b"></div>
+      <div class="hero-layout">
+        <div class="hero-content">
+          <div class="hero-kicker">LIVE2D RIGGING COMMISSION</div>
+          <h1 id="heroTitle">별아리 리깅 안내</h1>
+          <p class="hero-copy">캐릭터의 인상과 분위기를 살리는 자연스러운 움직임을 중심으로 작업합니다.</p>
+          <div id="topMeta" class="hero-note"></div>
+        </div>
+        <div class="hero-visual" aria-hidden="true">
+          <div class="hero-visual-head"><span>LIVE2D</span><b>MOTION / TRACKING</b></div>
+          <div class="hero-tracking-visual">
+            <span class="tracking-orbit tracking-orbit-a"></span>
+            <span class="tracking-orbit tracking-orbit-b"></span>
+            <span class="tracking-axis tracking-axis-x"></span>
+            <span class="tracking-axis tracking-axis-y"></span>
+            <span class="tracking-node tracking-node-a"></span>
+            <span class="tracking-node tracking-node-b"></span>
+            <span class="tracking-node tracking-node-c"></span>
+            <span class="tracking-core"></span>
+          </div>
+          <div class="hero-visual-foot"><span>FACE ±40°</span><span>BODY ±30°</span><span>VTS</span></div>
+        </div>
+      </div>
+    </section>
+
+    <nav id="quickNav" class="side-quick-nav" aria-label="페이지 퀵메뉴"></nav>
+
+    <div id="loadingState" class="state-panel" role="status" aria-live="polite">
+      <div class="loader"></div>
+      <strong>안내 페이지를 불러오고 있어요.</strong>
+      <span>구글 시트 데이터를 확인하는 중입니다.</span>
+    </div>
+
+    <div id="errorState" class="state-panel state-panel-error" hidden>
+      <div class="state-icon">!</div>
+      <strong>일부 데이터를 불러오지 못했습니다.</strong>
+      <span>페이지에 포함된 기본 데이터로 대신 표시합니다.</span>
+    </div>
+
+    <div id="sections" class="sections" hidden>
+      <section id="intro" class="content-section"></section>
+      <section id="event" class="content-section"></section>
+      <section id="calendar" class="content-section"></section>
+      <section id="package" class="content-section"></section>
+      <section id="scope" class="content-section"></section>
+      <section id="addon" class="content-section"></section>
+      <section id="sample" class="content-section"></section>
+      <section id="process" class="content-section"></section>
+      <section id="notice" class="content-section"></section>
+      <section id="collab" class="content-section"></section>
+      <section id="form" class="content-section"></section>
+    </div>
+
+    <footer class="page-footer scroll-reveal">
+      <span>Live2D Rigging Commission Guide</span>
+      <span>VTube Studio 기준 제작</span>
+    </footer>
+  </main>
+  <div id="imageModal" class="image-modal" hidden aria-hidden="true" role="dialog" aria-modal="true" aria-label="리깅 디테일 이미지 크게 보기">
+    <div class="image-modal-dialog" role="document">
+      <button type="button" class="image-modal-close" data-image-modal-close aria-label="이미지 크게 보기 닫기">×</button>
+      <figure class="image-modal-figure">
+        <img id="imageModalImg" alt="">
+        <figcaption id="imageModalCaption" class="image-modal-caption"></figcaption>
+      </figure>
+    </div>
+  </div>
+  <script src="./rigging.js" defer></script>
+</body>
+</html>

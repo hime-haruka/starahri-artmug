@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="18" height="1060" viewBox="0 0 18 1060">
+  <g fill="#EE74AE">
+    <circle cx="9" cy="72" r=".8" opacity=".38"/>
+    <circle cx="9" cy="82" r="1.2" opacity=".62"/>
+    <circle cx="9" cy="94" r=".85" opacity=".44"/>
+    <path opacity=".7" d="M9 218C9.36 222.95 11.55 225.14 16.5 225.5C11.55 225.86 9.36 228.05 9 233C8.64 228.05 6.45 225.86 1.5 225.5C6.45 225.14 8.64 222.95 9 218Z"/>
+    <circle cx="9" cy="367" r="1.3" opacity=".64"/>
+    <circle cx="9" cy="377" r=".78" opacity=".38"/>
+    <circle cx="9" cy="389" r="1" opacity=".5"/>
+    <circle cx="9" cy="402" r=".72" opacity=".34"/>
+    <path opacity=".5" d="M9 516C9.24 519.3 10.7 520.76 14 521C10.7 521.24 9.24 522.7 9 526C8.76 522.7 7.3 521.24 4 521C7.3 520.76 8.76 519.3 9 516Z"/>
+    <circle cx="9" cy="663" r=".86" opacity=".4"/>
+    <circle cx="9" cy="673" r="1.25" opacity=".65"/>
+    <circle cx="9" cy="685" r=".85" opacity=".42"/>
+    <path opacity=".72" d="M9 805C9.4 810.5 12 813.1 17.5 813.5C12 813.9 9.4 816.5 9 822C8.6 816.5 6 813.9.5 813.5C6 813.1 8.6 810.5 9 805Z"/>
+    <circle cx="9" cy="956" r="1.18" opacity=".62"/>
+    <circle cx="9" cy="967" r=".82" opacity=".38"/>
+    <circle cx="9" cy="979" r="1.05" opacity=".52"/>
+  </g>
+  <path fill="#7C6FE2" opacity=".3" d="M9 594L11.1 596.1L9 598.2L6.9 596.1Z"/>
+</svg>
