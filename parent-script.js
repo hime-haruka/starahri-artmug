@@ -26,6 +26,8 @@ var butterflyY=0;
 var butterflyFrame=0;
 var butterflySeen=false;
 var butterflyFinePointer=true;
+var initialScrollDone=false;
+var initialScrollY=null;
 function q(selector){try{return document.querySelector(selector)}catch(e){return null}}
 function findIframe(){
 var found=document.getElementById(iframeId);
@@ -155,6 +157,40 @@ var visibleBottom=Math.max(visibleTop,Math.min(rect.height,viewportHeight-rect.t
 post({type:"artmugPortfolio:viewport",frameTop:rect.top,frameLeft:rect.left,frameWidth:rect.width,frameHeight:rect.height,visibleTop:visibleTop,visibleBottom:visibleBottom,viewportHeight:viewportHeight,viewportWidth:viewportWidth,scrollY:window.pageYOffset||document.documentElement.scrollTop,stickyOffset:stickyOffset});
 positionQuickNav();
 }
+function getPageScrollY(){
+return window.pageYOffset||document.documentElement.scrollTop||document.body.scrollTop||0;
+}
+function getInitialScrollTarget(){
+if(!iframe||!iframe.getBoundingClientRect)return null;
+var configuredOffset=Number(config.autoScrollOffset);
+var offset=Number.isFinite(configuredOffset)?Math.max(0,configuredOffset):0;
+var rect=iframe.getBoundingClientRect();
+return Math.max(0,Math.round(rect.top+getPageScrollY()-offset));
+}
+function scrollToIframeOnEntry(){
+if(initialScrollDone||config.autoScrollToIframe===false||!iframe)return;
+if(window.location&&window.location.hash){initialScrollDone=true;return}
+var target=getInitialScrollTarget();
+if(target===null)return;
+initialScrollDone=true;
+initialScrollY=target;
+window.scrollTo(0,target);
+scheduleViewport();
+setTimeout(function(){
+if(!iframe||initialScrollY===null)return;
+var current=getPageScrollY();
+if(Math.abs(current-initialScrollY)>24)return;
+var corrected=getInitialScrollTarget();
+if(corrected===null||Math.abs(corrected-current)<2)return;
+initialScrollY=corrected;
+window.scrollTo(0,corrected);
+scheduleViewport();
+},240);
+}
+function scheduleInitialIframeScroll(){
+if(initialScrollDone||config.autoScrollToIframe===false)return;
+requestAnimationFrame(function(){requestAnimationFrame(scrollToIframeOnEntry)});
+}
 function setHeight(height){
 if(!iframe)return;
 var next=Math.max(300,Math.ceil(Number(height)||0));
@@ -227,6 +263,7 @@ widthObserver.observe(iframe.parentElement);
 }
 post({type:"artmugPortfolio:requestHeight"});
 sendViewport();
+scheduleInitialIframeScroll();
 setTimeout(function(){post({type:"artmugPortfolio:requestHeight"});sendViewport()},300);
 setTimeout(function(){post({type:"artmugPortfolio:requestHeight"});sendViewport()},1000);
 }
