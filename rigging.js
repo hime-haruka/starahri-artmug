@@ -995,15 +995,15 @@ function renderForm() {
   setSection('form', `
     <div class="form-shell">
       <div class="form-grid">
-        <div class="field"><label for="formNick">닉네임</label><input id="formNick" class="text-input" type="text" autocomplete="name" placeholder="문의에 사용할 닉네임"></div>
-        <div class="field"><label for="formBroadcast">방송 닉네임 & 플랫폼</label><input id="formBroadcast" class="text-input" type="text" placeholder="예: 치지직 / 별아리"></div>
+        <div class="field"><label for="formNick">활동명</label><input id="formNick" class="text-input" type="text" autocomplete="name" placeholder="방송 / 활동에 사용하는 이름"></div>
+        <div class="field"><label for="formPlatform">플랫폼</label><input id="formPlatform" class="text-input" type="text" placeholder="예: 치지직 / SOOP / YouTube"></div>
         <div class="field"><label for="formDebut">데뷔 예정일</label><input id="formDebut" class="text-input" type="date"></div>
         <div class="field"><label for="formOpen">작업물 SNS 공개 여부</label><select id="formOpen" class="select-input"><option value="공개 가능">공개 가능</option><option value="비공개 요청">비공개 요청</option></select></div>
         <div class="field"><label for="formArtist">일러스트 작가님 닉네임</label><input id="formArtist" class="text-input" type="text" placeholder="작가님 닉네임"></div>
-        <div class="field"><label for="formPackage">신청 타입</label><select id="formPackage" class="select-input">${packages.map(p => `<option value="${escapeHtml(p.key)}" data-price="${p.price}">${escapeHtml(p.name)} · ${won(p.price)}+</option>`).join('')}</select></div>
         <div class="field"><label for="formTracking">트래킹 장비</label><select id="formTracking" class="select-input"><option value="아이폰">아이폰</option><option value="웹캠">웹캠</option><option value="기타 / 미정">기타 / 미정</option></select></div>
         <div class="field"><label for="formEye">아이폰 사용 시 놀란 눈</label><select id="formEye" class="select-input"><option value="해당 없음">해당 없음</option><option value="눈동자 작게">눈동자 작게</option><option value="눈동자 많이 작게">눈동자 많이 작게</option></select></div>
         <div class="field"><label for="formBenefit">할인 혜택</label><select id="formBenefit" class="select-input"><option value="none">적용 안 함</option><option value="review">후기 작성 · 50,000원 할인</option><option value="collab">협업 작가 · 50,000원 할인</option><option value="both">후기 + 협업 · 100,000원 할인</option></select></div>
+        <div class="field full package-choice-field"><span class="field-label">신청 타입</span><span class="field-note">원하는 리깅 타입을 선택해 주세요.</span><div class="package-choice-grid">${packages.map((p, index) => `<label class="package-choice-card"><input type="radio" name="formPackage" value="${escapeHtml(p.key)}" data-package-name="${escapeHtml(p.name)}" data-price="${p.price}" ${index === 0 ? 'checked' : ''}><span class="package-choice-mark" aria-hidden="true"></span><span class="package-choice-copy"><strong>${escapeHtml(p.name)}</strong><small>기본가 ${won(p.price)}+</small></span></label>`).join('')}</div></div>
         <div class="field full"><span class="field-label">추가 옵션</span><span class="field-note">여기서 선택한 옵션과 수량이 아래 예상 견적에 바로 반영됩니다.</span><div class="choice-grid">${addons.map(formOptionMarkup).join('')}</div></div>
         <div class="field full"><label class="choice-card single-choice"><input id="formCopyright" type="checkbox"><span class="choice-mark" aria-hidden="true"></span><span class="choice-copy"><strong>저작권 구매</strong><small>할인 적용 후 작업 금액의 +40%</small></span></label></div>
         <div class="field full"><label for="formExtra">추가 옵션 / 특수 파츠</label><textarea id="formExtra" class="textarea-input" placeholder="${escapeHtml(consult.map(row => row.title).join(' / '))}
@@ -1031,13 +1031,12 @@ function benefitDiscount(code) {
 }
 
 function updateFormEstimate() {
-  const packageSelect = document.getElementById('formPackage');
+  const packageInput = document.querySelector('input[name="formPackage"]:checked');
   const totalEl = document.getElementById('estimateTotal');
   const listEl = document.getElementById('estimateList');
-  if (!packageSelect || !totalEl || !listEl) return;
-  const option = packageSelect.options[packageSelect.selectedIndex];
-  const packageName = option?.textContent?.replace(/\s·\s.*$/, '') || '패키지';
-  let subtotal = numeric(option?.dataset.price);
+  if (!packageInput || !totalEl || !listEl) return;
+  const packageName = packageInput.dataset.packageName || '패키지';
+  let subtotal = numeric(packageInput.dataset.price);
   const lines = [{ label: packageName, value: subtotal }];
   document.querySelectorAll('[data-form-addon]:checked').forEach(input => {
     const price = numeric(input.dataset.price);
@@ -1061,13 +1060,13 @@ function updateFormEstimate() {
   const copyrightFee = document.getElementById('formCopyright')?.checked ? Math.round(discounted * 0.4) : 0;
   const total = discounted + copyrightFee;
   animateEstimateTotal(totalEl, total);
+  const signature = JSON.stringify({ lines, discount, copyrightFee, total });
+  if (listEl.dataset.estimateSignature === signature) return;
+  listEl.dataset.estimateSignature = signature;
   const lineHtml = lines.map(line => `<div class="estimate-row"><span>${escapeHtml(line.label)}</span><strong>+ ${won(line.value)}</strong></div>`).join('');
   const discountHtml = discount ? `<div class="estimate-row discount"><span>혜택 할인</span><strong>− ${won(discount)}</strong></div>` : '';
   const copyrightHtml = copyrightFee ? `<div class="estimate-row"><span>저작권 구매 +40%</span><strong>+ ${won(copyrightFee)}</strong></div>` : '';
   listEl.innerHTML = `${lineHtml}${discountHtml || copyrightHtml ? '<div class="estimate-divider"></div>' : ''}${discountHtml}${copyrightHtml}<div class="estimate-divider"></div><div class="estimate-row estimate-final"><span>예상 합계</span><strong>${won(total)}+</strong></div>`;
-  listEl.classList.remove('is-updating');
-  requestAnimationFrame(() => listEl.classList.add('is-updating'));
-  window.setTimeout(() => listEl.classList.remove('is-updating'), 700);
   sendHeight();
 }
 
@@ -1211,8 +1210,8 @@ function setupPremiumMotion() {
 
 function buildFormText() {
   const get = id => document.getElementById(id)?.value?.trim() || '';
-  const packageSelect = document.getElementById('formPackage');
-  const packageName = packageSelect?.options[packageSelect.selectedIndex]?.textContent?.replace(/\s·\s.*$/, '') || '';
+  const packageInput = document.querySelector('input[name="formPackage"]:checked');
+  const packageName = packageInput?.dataset.packageName || '';
   const addons = [...document.querySelectorAll('[data-form-addon]:checked')].map(input => input.dataset.formAddon).filter(Boolean);
   document.querySelectorAll('[data-form-qty]').forEach(output => {
     const qty = Math.max(0, numeric(output.textContent));
@@ -1223,8 +1222,8 @@ function buildFormText() {
   const copyright = document.getElementById('formCopyright')?.checked ? '구매 희망' : '구매하지 않음';
   return [
     `[Live2D 리깅 신청 양식]`,
-    `닉네임: ${get('formNick')}`,
-    `방송 닉네임 & 플랫폼: ${get('formBroadcast')}`,
+    `활동명: ${get('formNick')}`,
+    `플랫폼: ${get('formPlatform')}`,
     `데뷔 예정일: ${get('formDebut')}`,
     `작업물 SNS 공개 가능 여부 / 비공개 요청: ${get('formOpen')}`,
     `일러스트 작가님 닉네임: ${get('formArtist')}`,
@@ -1242,34 +1241,54 @@ function buildFormText() {
   ].join('\n');
 }
 
+function copyTextWithoutFocus(text) {
+  const holder = document.createElement('span');
+  holder.textContent = text;
+  holder.setAttribute('aria-hidden', 'true');
+  holder.style.cssText = 'position:fixed;left:0;top:0;width:1px;height:1px;overflow:hidden;opacity:0;pointer-events:none;white-space:pre;';
+  document.body.appendChild(holder);
+  const selection = window.getSelection();
+  const savedRanges = [];
+  if (selection) {
+    for (let index = 0; index < selection.rangeCount; index += 1) savedRanges.push(selection.getRangeAt(index).cloneRange());
+  }
+  const range = document.createRange();
+  range.selectNodeContents(holder);
+  selection?.removeAllRanges();
+  selection?.addRange(range);
+  let copied = false;
+  try { copied = document.execCommand('copy'); } catch {}
+  selection?.removeAllRanges();
+  savedRanges.forEach(saved => selection?.addRange(saved));
+  holder.remove();
+  return copied;
+}
+
 async function copyForm() {
   const text = buildFormText();
+  let copied = false;
   try {
-    await navigator.clipboard.writeText(text);
-    showToast('신청 양식을 복사했습니다.');
-  } catch {
-    const textarea = document.createElement('textarea');
-    textarea.value = text;
-    textarea.style.position = 'fixed';
-    textarea.style.opacity = '0';
-    document.body.appendChild(textarea);
-    textarea.select();
-    document.execCommand('copy');
-    textarea.remove();
-    showToast('신청 양식을 복사했습니다.');
-  }
+    if (navigator.clipboard?.writeText) {
+      await navigator.clipboard.writeText(text);
+      copied = true;
+    }
+  } catch {}
+  if (!copied) copied = copyTextWithoutFocus(text);
+  showToast(copied ? '신청 양식을 복사했습니다.' : '복사에 실패했습니다. 다시 시도해 주세요.');
 }
 
 function resetForm() {
-  const formIds = ['formNick', 'formBroadcast', 'formDebut', 'formArtist', 'formExtra', 'formRequest'];
+  const formIds = ['formNick', 'formPlatform', 'formDebut', 'formArtist', 'formExtra', 'formRequest'];
   formIds.forEach(id => {
     const el = document.getElementById(id);
     if (el) el.value = '';
   });
-  ['formOpen', 'formTracking', 'formEye', 'formPackage', 'formBenefit'].forEach(id => {
+  ['formOpen', 'formTracking', 'formEye', 'formBenefit'].forEach(id => {
     const el = document.getElementById(id);
     if (el) el.selectedIndex = 0;
   });
+  const packageInputs = [...document.querySelectorAll('input[name="formPackage"]')];
+  packageInputs.forEach((input, index) => { input.checked = index === 0; });
   document.querySelectorAll('[data-form-addon]').forEach(input => { input.checked = false; });
   document.querySelectorAll('[data-form-qty]').forEach(output => {
     output.textContent = '0';
@@ -1425,8 +1444,18 @@ function bindEvents() {
       updateFormEstimate();
       return;
     }
-    if (event.target.closest('#formCopy')) copyForm();
-    if (event.target.closest('#formReset')) resetForm();
+    const copyButton = event.target.closest('#formCopy');
+    if (copyButton) {
+      event.preventDefault();
+      copyForm();
+      return;
+    }
+    const resetButton = event.target.closest('#formReset');
+    if (resetButton) {
+      event.preventDefault();
+      resetForm();
+      return;
+    }
   });
 
   document.addEventListener('keydown', event => {
@@ -1441,12 +1470,9 @@ function bindEvents() {
   });
 
   document.addEventListener('change', event => {
-    if (event.target.id === 'formPackage' || event.target.id === 'formBenefit' || event.target.id === 'formCopyright' || event.target.matches('[data-form-addon]')) updateFormEstimate();
+    if (event.target.matches('input[name="formPackage"]') || event.target.id === 'formBenefit' || event.target.id === 'formCopyright' || event.target.matches('[data-form-addon]')) updateFormEstimate();
   });
 
-  document.addEventListener('input', event => {
-    if (event.target.closest('#form')) updateFormEstimate();
-  });
 }
 
 function applySectionOrder() {

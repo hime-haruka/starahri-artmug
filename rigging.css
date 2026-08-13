@@ -1096,6 +1096,94 @@ html:not(.is-embedded) .image-modal {
   grid-column: 1 / -1;
 }
 
+.package-choice-field {
+  gap: 7px;
+}
+
+.package-choice-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+  margin-top: 4px;
+}
+
+.package-choice-card {
+  position: relative;
+  display: grid;
+  grid-template-columns: 20px minmax(0, 1fr);
+  align-items: center;
+  gap: 12px;
+  min-height: 72px;
+  padding: 14px 16px;
+  border: 1px solid var(--section-line);
+  border-radius: 8px;
+  background: #fff;
+  cursor: pointer;
+  transition: border-color .25s ease, background-color .25s ease;
+}
+
+.package-choice-card input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.package-choice-mark {
+  display: grid;
+  width: 18px;
+  height: 18px;
+  place-items: center;
+  border: 1px solid var(--section-line);
+  border-radius: 50%;
+  background: #fff;
+}
+
+.package-choice-mark::after {
+  content: '';
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--section-accent);
+  opacity: 0;
+  transform: scale(.45);
+  transition: opacity .2s ease, transform .24s ease;
+}
+
+.package-choice-copy {
+  display: grid;
+  gap: 4px;
+  min-width: 0;
+}
+
+.package-choice-copy strong {
+  color: var(--ink-800);
+  font-size: 12px;
+}
+
+.package-choice-copy small {
+  color: var(--ink-500);
+  font-size: 10px;
+}
+
+.package-choice-card:has(input:checked) {
+  border-color: var(--section-accent);
+  background: var(--section-soft);
+}
+
+.package-choice-card:has(input:checked) .package-choice-mark {
+  border-color: var(--section-accent);
+}
+
+.package-choice-card:has(input:checked) .package-choice-mark::after {
+  opacity: 1;
+  transform: scale(1);
+}
+
+.package-choice-card:has(input:focus-visible) {
+  outline: 2px solid var(--section-line);
+  outline-offset: 2px;
+}
+
 .field-note {
   line-height: 1.7;
 }
@@ -1584,7 +1672,8 @@ html:not(.is-embedded) .image-modal {
 .collab-grid,
 .scope-grid,
 .addon-grid,
-.form-grid {
+.form-grid,
+.package-choice-grid {
     grid-template-columns: 1fr;
   }
 
@@ -3442,21 +3531,6 @@ body {
 .estimate-total.is-counting {
   color: var(--purple-700);
   transform: scale(1.025);
-}
-
-.estimate-list.is-updating .estimate-row {
-  animation: estimateRowIn .48s var(--motion-ease) both;
-}
-
-.estimate-list.is-updating .estimate-row:nth-child(2) { animation-delay: .035s; }
-.estimate-list.is-updating .estimate-row:nth-child(3) { animation-delay: .07s; }
-.estimate-list.is-updating .estimate-row:nth-child(4) { animation-delay: .105s; }
-.estimate-list.is-updating .estimate-row:nth-child(5) { animation-delay: .14s; }
-.estimate-list.is-updating .estimate-row:nth-child(6) { animation-delay: .175s; }
-
-@keyframes estimateRowIn {
-  from { opacity: 0; transform: translate3d(8px, 0, 0); }
-  to { opacity: 1; transform: translate3d(0, 0, 0); }
 }
 
 .calendar-event-popover {
