@@ -447,7 +447,13 @@ function renderTop() {
     .filter(item => item.id && item.id !== 'top' && item.id !== 'calc' && document.getElementById(item.id))
     .sort((a, b) => numeric(a.order) - numeric(b.order));
   if (els.quickNav) {
-    els.quickNav.innerHTML = navItems.map((item, index) => `<button type="button" class="quick-nav-button" data-quick-target="${escapeHtml(item.id)}" aria-label="${escapeHtml(item.title)}로 이동"><span class="quick-nav-order">${String(index + 1).padStart(2, '0')}</span><span class="quick-nav-label">${escapeHtml(item.title)}</span></button>`).join('');
+    els.quickNav.innerHTML = navItems.map(item => `<button type="button" class="quick-nav-button" data-quick-target="${escapeHtml(item.id)}" aria-label="${escapeHtml(item.title)}로 이동"><span class="quick-nav-label">${escapeHtml(item.title)}</span></button>`).join('');
+  }
+  if (window.parent !== window) {
+    window.parent.postMessage({
+      type: 'artmugPortfolio:quickNav',
+      items: navItems.map(item => ({ id: item.id, title: item.title || item.id }))
+    }, '*');
   }
 }
 

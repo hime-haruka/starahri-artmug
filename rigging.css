@@ -160,8 +160,6 @@ img {
 }
 
 .side-quick-nav {
-  display: flex;
-  flex-direction: column;
   position: fixed;
   top: 94px;
   left: calc(50% + 606px);
@@ -180,6 +178,7 @@ img {
   transition: opacity .24s ease, transform .24s ease;
 }
 
+html.is-embedded .side-quick-nav,
 .side-quick-nav::-webkit-scrollbar,
 .side-quick-nav:empty {
   display: none;
@@ -1775,6 +1774,10 @@ html:not(.is-embedded) .image-modal {
 
 body {
   font-size: 14px;
+}
+
+.side-quick-nav {
+  display: none !important;
 }
 
 .state-panel span {
