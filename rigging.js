@@ -283,14 +283,44 @@ function parseCsv(text) {
   }).filter(item => Object.values(item).some(value => String(value).trim() !== ''));
 }
 
-async function fetchCsv(url, timeoutMs = 12000) {
-  const separator = url.includes('?') ? '&' : '?';
+const SHEET_CACHE_KEY = 'starahri-rigging-sheet-cache-v2';
+const SHEET_CACHE_MAX_AGE = 1000 * 60 * 60 * 24 * 7;
+
+function cloneFallback() {
+  return JSON.parse(JSON.stringify(FALLBACK));
+}
+
+function readSheetCache() {
+  try {
+    const raw = localStorage.getItem(SHEET_CACHE_KEY);
+    if (!raw) return null;
+    const cached = JSON.parse(raw);
+    if (!cached || typeof cached !== 'object' || !cached.data) return null;
+    if (!cached.savedAt || Date.now() - cached.savedAt > SHEET_CACHE_MAX_AGE) return null;
+    return cached.data;
+  } catch (error) {
+    return null;
+  }
+}
+
+function writeSheetCache(data) {
+  try {
+    localStorage.setItem(SHEET_CACHE_KEY, JSON.stringify({
+      savedAt: Date.now(),
+      data
+    }));
+  } catch (error) {
+    // Storage can be unavailable in some embedded/private browser contexts.
+  }
+}
+
+async function fetchCsv(url, timeoutMs = 6000) {
   const controller = new AbortController();
   const timeoutId = window.setTimeout(() => controller.abort(), timeoutMs);
 
   try {
-    const response = await fetch(`${url}${separator}_=${Date.now()}`, {
-      cache: 'no-store',
+    const response = await fetch(url, {
+      cache: 'no-cache',
       signal: controller.signal
     });
     if (!response.ok) throw new Error(`HTTP ${response.status}`);
@@ -1665,34 +1695,65 @@ function setupAutoHeight() {
   if (document.fonts?.ready) document.fonts.ready.then(sendHeight);
 }
 
-async function loadData() {
-  const entries = Object.entries(SHEETS);
-  const settled = await Promise.allSettled(entries.map(([, url]) => fetchCsv(url)));
-  settled.forEach((result, index) => {
-    const key = entries[index][0];
-    if (result.status === 'fulfilled') {
-      appState.data[key] = result.value;
-    } else {
-      appState.data[key] = JSON.parse(JSON.stringify(FALLBACK[key] || []));
-      appState.failed.push(key);
+function prepareInitialData() {
+  const cached = readSheetCache();
+  appState.data = cloneFallback();
+  if (!cached) return;
+
+  Object.keys(SHEETS).forEach(key => {
+    if (Array.isArray(cached[key]) && cached[key].length) {
+      appState.data[key] = cached[key];
     }
-  });
-  Object.keys(FALLBACK).forEach(key => {
-    if (!appState.data[key]) appState.data[key] = JSON.parse(JSON.stringify(FALLBACK[key]));
   });
 }
 
-async function init() {
+async function refreshDataInBackground() {
+  const entries = Object.entries(SHEETS);
+  const settled = await Promise.allSettled(entries.map(([, url]) => fetchCsv(url)));
+  const nextData = { ...appState.data };
+  const failed = [];
+  let changed = false;
+
+  settled.forEach((result, index) => {
+    const key = entries[index][0];
+    if (result.status === 'fulfilled' && Array.isArray(result.value) && result.value.length) {
+      nextData[key] = result.value;
+      changed = true;
+    } else {
+      failed.push(key);
+    }
+  });
+
+  appState.failed = failed;
+  appState.data = nextData;
+  if (changed) {
+    writeSheetCache(nextData);
+    renderAll();
+    sendHeight();
+  }
+  els.error.hidden = failed.length === 0;
+}
+
+function init() {
   bindEvents();
   setupParentPointerBridge();
   setupParentViewportBridge();
   setupAutoHeight();
-  await loadData();
+
+  // Never block the page on Google Sheets. Show cached/default content first,
+  // then refresh the latest sheet data after the first paint.
+  prepareInitialData();
   renderAll();
   els.loading.hidden = true;
   els.sections.hidden = false;
-  els.error.hidden = appState.failed.length === 0;
+  els.error.hidden = true;
   sendHeight();
+
+  window.setTimeout(() => {
+    refreshDataInBackground().catch(() => {
+      els.error.hidden = false;
+    });
+  }, 0);
 }
 
 init();

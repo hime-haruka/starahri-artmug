@@ -38,7 +38,7 @@ function injectLoadingStyle(){
 if(document.getElementById("artmugPortfolioLoadingStyle"))return;
 var style=document.createElement("style");
 style.id="artmugPortfolioLoadingStyle";
-style.textContent="#artmugPortfolioLoading{position:fixed;inset:0;z-index:2147483647;display:grid;place-items:center;background:rgba(250,249,253,.965);backdrop-filter:blur(7px);-webkit-backdrop-filter:blur(7px);opacity:1;visibility:visible;transition:opacity .38s ease,visibility .38s ease;pointer-events:auto}#artmugPortfolioLoading.am-loading-done{opacity:0;visibility:hidden;pointer-events:none}#artmugPortfolioLoading .am-loading-inner{width:min(320px,calc(100vw - 48px));text-align:center;font-family:Paperozi,'Noto Sans KR',sans-serif;color:#574f72}#artmugPortfolioLoading .am-loading-kicker{margin-bottom:10px;color:#8a78d5;font-size:11px;font-weight:600;letter-spacing:.16em}#artmugPortfolioLoading .am-loading-title{margin:0 0 18px;font-size:15px;font-weight:600;letter-spacing:-.02em;color:#554d67;opacity:1;transform:translateY(0);transition:opacity .24s ease,transform .24s ease}#artmugPortfolioLoading .am-loading-title.am-loading-changing{opacity:0;transform:translateY(-5px)}#artmugPortfolioLoading .am-loading-track{position:relative;height:7px;overflow:hidden;border-radius:999px;background:#ece8f5;border:1px solid #e1dced}#artmugPortfolioLoading .am-loading-runner{position:absolute;top:0;height:100%;border-radius:999px;will-change:transform}.am-loading-runner.am-loading-purple{left:0;width:92px;background:#9b89e8;animation:amLoadingPurple 1.55s cubic-bezier(.55,.05,.2,1) infinite}.am-loading-runner.am-loading-pink{left:0;width:54px;background:#f0a9ce;animation:amLoadingPink 1.55s cubic-bezier(.55,.05,.2,1) .42s infinite}.am-loading-dots{display:flex;justify-content:center;gap:6px;margin-top:13px}.am-loading-dots i{display:block;width:4px;height:4px;border-radius:50%;background:#b9aedc;animation:amLoadingDot 1.25s ease-in-out infinite}.am-loading-dots i:nth-child(2){background:#e9a9cb;animation-delay:.18s}.am-loading-dots i:nth-child(3){animation-delay:.36s}@keyframes amLoadingPurple{0%{transform:translate3d(-108px,0,0)}65%,100%{transform:translate3d(322px,0,0)}}@keyframes amLoadingPink{0%{transform:translate3d(-72px,0,0)}65%,100%{transform:translate3d(322px,0,0)}}@keyframes amLoadingDot{0%,100%{opacity:.34;transform:translateY(0)}50%{opacity:1;transform:translateY(-2px)}}@media(prefers-reduced-motion:reduce){#artmugPortfolioLoading .am-loading-runner,.am-loading-dots i{animation:none!important}#artmugPortfolioLoading .am-loading-purple{transform:translate3d(86px,0,0)}#artmugPortfolioLoading .am-loading-pink{transform:translate3d(178px,0,0)}}";
+style.textContent="#artmugPortfolioLoading{position:fixed;inset:0;z-index:2147483647;display:grid;place-items:center;background:rgba(250,249,253,.965);backdrop-filter:blur(7px);-webkit-backdrop-filter:blur(7px);opacity:1;visibility:visible;transition:opacity .18s ease,visibility .18s ease;pointer-events:auto}#artmugPortfolioLoading.am-loading-done{opacity:0;visibility:hidden;pointer-events:none}#artmugPortfolioLoading .am-loading-inner{width:min(320px,calc(100vw - 48px));text-align:center;font-family:Paperozi,'Noto Sans KR',sans-serif;color:#574f72}#artmugPortfolioLoading .am-loading-kicker{margin-bottom:10px;color:#8a78d5;font-size:11px;font-weight:600;letter-spacing:.16em}#artmugPortfolioLoading .am-loading-title{margin:0 0 18px;font-size:15px;font-weight:600;letter-spacing:-.02em;color:#554d67;opacity:1;transform:translateY(0);transition:opacity .24s ease,transform .24s ease}#artmugPortfolioLoading .am-loading-title.am-loading-changing{opacity:0;transform:translateY(-5px)}#artmugPortfolioLoading .am-loading-track{position:relative;height:7px;overflow:hidden;border-radius:999px;background:#ece8f5;border:1px solid #e1dced}#artmugPortfolioLoading .am-loading-runner{position:absolute;top:0;height:100%;border-radius:999px;will-change:transform}.am-loading-runner.am-loading-purple{left:0;width:92px;background:#9b89e8;animation:amLoadingPurple 1.55s cubic-bezier(.55,.05,.2,1) infinite}.am-loading-runner.am-loading-pink{left:0;width:54px;background:#f0a9ce;animation:amLoadingPink 1.55s cubic-bezier(.55,.05,.2,1) .42s infinite}.am-loading-dots{display:flex;justify-content:center;gap:6px;margin-top:13px}.am-loading-dots i{display:block;width:4px;height:4px;border-radius:50%;background:#b9aedc;animation:amLoadingDot 1.25s ease-in-out infinite}.am-loading-dots i:nth-child(2){background:#e9a9cb;animation-delay:.18s}.am-loading-dots i:nth-child(3){animation-delay:.36s}@keyframes amLoadingPurple{0%{transform:translate3d(-108px,0,0)}65%,100%{transform:translate3d(322px,0,0)}}@keyframes amLoadingPink{0%{transform:translate3d(-72px,0,0)}65%,100%{transform:translate3d(322px,0,0)}}@keyframes amLoadingDot{0%,100%{opacity:.34;transform:translateY(0)}50%{opacity:1;transform:translateY(-2px)}}@media(prefers-reduced-motion:reduce){#artmugPortfolioLoading .am-loading-runner,.am-loading-dots i{animation:none!important}#artmugPortfolioLoading .am-loading-purple{transform:translate3d(86px,0,0)}#artmugPortfolioLoading .am-loading-pink{transform:translate3d(178px,0,0)}}";
 document.head.appendChild(style);
 }
 function ensureLoadingOverlay(){
@@ -52,7 +52,7 @@ loadingOverlay.setAttribute("aria-live","polite");
 loadingOverlay.innerHTML='<div class="am-loading-inner"><div class="am-loading-kicker">STARAHRI RIGGING COMMISSION</div><div class="am-loading-title">페이지를 불러오는 중이에요.</div><div class="am-loading-track" aria-hidden="true"><span class="am-loading-runner am-loading-purple"></span><span class="am-loading-runner am-loading-pink"></span></div><div class="am-loading-dots" aria-hidden="true"><i></i><i></i><i></i></div></div>';
 (document.body||document.documentElement).appendChild(loadingOverlay);
 startLoadingMessages();
-if(!loadingFallbackTimer)loadingFallbackTimer=setTimeout(function(){finishLoadingOverlay(true)},10000);
+if(!loadingFallbackTimer)loadingFallbackTimer=setTimeout(function(){finishLoadingOverlay(true)},1200);
 return loadingOverlay;
 }
 function startLoadingMessages(){
@@ -74,19 +74,19 @@ el.classList.remove("am-loading-changing");
 },2800);
 }
 function finishLoadingOverlay(force){
-if(!force&&(!loadingIframeReady||!loadingHeightReady))return;
+if(!force&&(!loadingIframeReady&&!loadingHeightReady))return;
 if(loadingFinishTimer){clearTimeout(loadingFinishTimer);loadingFinishTimer=null}
 if(loadingFallbackTimer){clearTimeout(loadingFallbackTimer);loadingFallbackTimer=null}
 if(loadingMessageTimer){clearInterval(loadingMessageTimer);loadingMessageTimer=null}
 var el=loadingOverlay||document.getElementById("artmugPortfolioLoading");
 if(!el)return;
 el.classList.add("am-loading-done");
-setTimeout(function(){if(el&&el.parentNode)el.parentNode.removeChild(el);if(loadingOverlay===el)loadingOverlay=null},460);
+setTimeout(function(){if(el&&el.parentNode)el.parentNode.removeChild(el);if(loadingOverlay===el)loadingOverlay=null},240);
 }
 function scheduleLoadingFinish(){
-if(!loadingIframeReady||!loadingHeightReady)return;
+if(!loadingIframeReady&&!loadingHeightReady)return;
 if(loadingFinishTimer)clearTimeout(loadingFinishTimer);
-loadingFinishTimer=setTimeout(function(){loadingFinishTimer=null;finishLoadingOverlay(false)},240);
+loadingFinishTimer=setTimeout(function(){loadingFinishTimer=null;finishLoadingOverlay(false)},80);
 }
 function findIframe(){
 var found=document.getElementById(iframeId);
@@ -231,7 +231,7 @@ viewportTick=true;
 requestAnimationFrame(function(){viewportTick=false;sendViewport()});
 }
 function hideButtons(){
-if(config.hideArtmugButtons===false)return;
+if(config.hideArtmugButtons!==true)return;
 removeSelectors.forEach(function(selector){
 try{document.querySelectorAll(selector).forEach(function(el){if(!el.closest("[name='am-root']")&&!el.closest("#artmugPortfolioMount")&&!el.closest("#artmugPortfolioQuickNav")){el.style.display="none"}})}catch(e){}
 });
