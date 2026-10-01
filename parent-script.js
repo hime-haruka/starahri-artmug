@@ -1,7 +1,7 @@
 (function(){
   'use strict';
 
-  var BUILD='2026-10-01-quick-original-v1';
+  var BUILD='2026-10-01-button-stable-v2';
   var config=window.ArtmugPortfolioConfig||{};
   var scriptEl=document.currentScript||document.querySelector("script[src*='parent-script']");
   var scriptOrigin='';
@@ -28,6 +28,9 @@
   var widthObserver=null;
   var quickNav=null;
   var quickItems=[];
+  var quickItemsSignature='';
+  var quickHostReady=false;
+  var quickMountTimer=null;
 
   function q(selector){try{return document.querySelector(selector)}catch(e){return null}}
 
@@ -58,6 +61,7 @@
     try{iframe.contentWindow.postMessage(message,'*')}catch(e){}
   }
 
+
   function injectQuickStyle(){
     if(document.getElementById('artmugPortfolioQuickStyle'))return;
     var style=document.createElement('style');
@@ -68,7 +72,7 @@
 
   function ensureQuickNav(){
     if(quickNav&&quickNav.isConnected)return quickNav;
-    if(!document.body)return null;
+    if(!document.body||!quickHostReady||!quickItems.length)return null;
     injectQuickStyle();
     quickNav=document.createElement('nav');
     quickNav.id='artmugPortfolioQuickNav';
@@ -83,17 +87,23 @@
   }
 
   function renderQuickNav(){
+    if(!quickHostReady||!quickItems.length)return;
     var nav=ensureQuickNav();
     if(!nav)return;
-    nav.innerHTML='';
-    quickItems.forEach(function(item){
-      var button=document.createElement('button');
-      button.type='button';
-      button.setAttribute('data-quick-target',String(item.id||''));
-      button.setAttribute('aria-label',String(item.title||item.id||'')+'로 이동');
-      button.textContent=String(item.title||item.id||'');
-      nav.appendChild(button);
-    });
+    var signature=quickItems.map(function(item){return String(item.id||'')+'\u0001'+String(item.title||'')}).join('\u0002');
+    if(signature!==quickItemsSignature){
+      quickItemsSignature=signature;
+      var fragment=document.createDocumentFragment();
+      quickItems.forEach(function(item){
+        var button=document.createElement('button');
+        button.type='button';
+        button.setAttribute('data-quick-target',String(item.id||''));
+        button.setAttribute('aria-label',String(item.title||item.id||'')+'로 이동');
+        button.textContent=String(item.title||item.id||'');
+        fragment.appendChild(button);
+      });
+      nav.replaceChildren(fragment);
+    }
     positionQuickNav();
   }
 
@@ -106,14 +116,22 @@
     var gap=18;
     var rightSpace=vw-rect.right;
     var top=Math.max(18,stickyOffset+70);
-    var hasSpace=rightSpace>=width+gap+8;
-    var visible=hasSpace&&quickItems.length>0;
+    var visible=rightSpace>=width+gap+8&&quickItems.length>0;
     var scrollable=Math.max(1,rect.height-vh+top);
     var progress=Math.max(0,Math.min(1,(top-rect.top)/scrollable));
     quickNav.style.setProperty('--amq-progress',String(progress));
     quickNav.style.top=top+'px';
     quickNav.style.left=Math.round(rect.right+gap)+'px';
     quickNav.classList.toggle('amq-visible',visible);
+  }
+
+  function scheduleQuickNavMount(){
+    if(!quickHostReady||!quickItems.length)return;
+    if(quickMountTimer)return;
+    quickMountTimer=setTimeout(function(){
+      quickMountTimer=null;
+      renderQuickNav();
+    },120);
   }
 
   function getAvailableWidth(){
@@ -209,7 +227,7 @@
     styleIframe();
     reserveInitialHeight();
     bound=true;
-    ensureQuickNav();
+    setTimeout(function(){quickHostReady=true;scheduleQuickNavMount();},1200);
 
     iframe.addEventListener('load',function(){
       styleIframe();
@@ -245,7 +263,7 @@
     if(data.type==='artmugPortfolio:requestViewport')sendViewport();
     if(data.type==='artmugPortfolio:quickNav'&&Array.isArray(data.items)){
       quickItems=data.items.filter(function(item){return item&&item.id});
-      renderQuickNav();
+      scheduleQuickNavMount();
     }
     if(data.type==='artmugPortfolio:scrollTop'){
       window.scrollTo({top:iframe.getBoundingClientRect().top+window.pageYOffset,behavior:'smooth'});
@@ -274,11 +292,6 @@
   // Artmug evaluates its native collapsed/expanded content state.
   if(document.documentElement) start();
   else document.addEventListener('DOMContentLoaded',start,{once:true});
-  if(document.readyState==='loading'){
-    document.addEventListener('DOMContentLoaded',function(){
-      if(bound){ensureQuickNav();post({type:'artmugPortfolio:requestViewport'});}
-    },{once:true});
-  }
 
   // Exposed only for troubleshooting/version checks; no host UI mutation.
   window.StarahriArtmugBridge={build:BUILD};
