@@ -1736,6 +1736,7 @@ async function refreshDataInBackground() {
 
 function init() {
   bindEvents();
+  setupParentPointerBridge();
   setupParentViewportBridge();
   setupAutoHeight();
 
