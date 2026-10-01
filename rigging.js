@@ -449,12 +449,6 @@ function renderTop() {
   if (els.quickNav) {
     els.quickNav.innerHTML = navItems.map(item => `<button type="button" class="quick-nav-button" data-quick-target="${escapeHtml(item.id)}" aria-label="${escapeHtml(item.title)}로 이동"><span class="quick-nav-label">${escapeHtml(item.title)}</span></button>`).join('');
   }
-  if (window.parent !== window) {
-    window.parent.postMessage({
-      type: 'artmugPortfolio:quickNav',
-      items: navItems.map(item => ({ id: item.id, title: item.title || item.id }))
-    }, '*');
-  }
 }
 
 function renderIntro() {
@@ -1736,7 +1730,6 @@ async function refreshDataInBackground() {
 
 function init() {
   bindEvents();
-  setupParentPointerBridge();
   setupParentViewportBridge();
   setupAutoHeight();
 

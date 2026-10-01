@@ -178,7 +178,6 @@ img {
   transition: opacity .24s ease, transform .24s ease;
 }
 
-html.is-embedded .side-quick-nav,
 .side-quick-nav::-webkit-scrollbar,
 .side-quick-nav:empty {
   display: none;
