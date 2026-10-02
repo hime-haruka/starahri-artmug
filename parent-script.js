@@ -8,6 +8,8 @@ var iframeSelector=config.iframeSelector||"iframe[src*='kina-artmug.netlify.app'
 var allowedOrigin=config.allowedOrigin||scriptOrigin||"*";
 var stickyOffset=Number(config.stickyOffset)||0;
 var maxWidth=Math.min(1180,Math.max(320,Number(config.maxWidth)||1180));
+var initialFrameHeight=Math.max(1800,Number(config.initialFrameHeight)||3600);
+var heightStabilizeMs=Math.max(800,Number(config.heightStabilizeMs)||2400);
 var iframe=null;
 var binded=false;
 var observer=null;
@@ -32,6 +34,9 @@ var loadingFinishTimer=null;
 var loadingFallbackTimer=null;
 var loadingMessageTimer=null;
 var loadingMessageIndex=0;
+var heightReleaseAt=0;
+var pendingMeasuredHeight=0;
+var pendingHeightTimer=null;
 function q(selector){try{return document.querySelector(selector)}catch(e){return null}}
 function injectLoadingStyle(){
 if(document.getElementById("artmugPortfolioLoadingStyle"))return;
@@ -215,14 +220,40 @@ var visibleBottom=Math.max(visibleTop,Math.min(rect.height,viewportHeight-rect.t
 post({type:"artmugPortfolio:viewport",frameTop:rect.top,frameLeft:rect.left,frameWidth:rect.width,frameHeight:rect.height,visibleTop:visibleTop,visibleBottom:visibleBottom,viewportHeight:viewportHeight,viewportWidth:viewportWidth,scrollY:window.pageYOffset||document.documentElement.scrollTop,stickyOffset:stickyOffset});
 positionQuickNav();
 }
-function setHeight(height){
+function applyIframeHeight(next){
 if(!iframe)return;
-var next=Math.max(300,Math.ceil(Number(height)||0));
+next=Math.max(300,Math.ceil(Number(next)||0));
 iframe.style.height=next+"px";
 iframe.setAttribute("height",String(next));
 loadingHeightReady=true;
 scheduleLoadingFinish();
 sendViewport();
+}
+function releasePendingHeight(){
+if(!pendingMeasuredHeight)return;
+var next=pendingMeasuredHeight;
+pendingMeasuredHeight=0;
+applyIframeHeight(next);
+}
+function setHeight(height){
+if(!iframe)return;
+var next=Math.max(300,Math.ceil(Number(height)||0));
+if(performance.now()<heightReleaseAt&&next<initialFrameHeight){
+  pendingMeasuredHeight=next;
+  if(!pendingHeightTimer){
+    pendingHeightTimer=setTimeout(function(){pendingHeightTimer=null;releasePendingHeight()},Math.max(0,heightReleaseAt-performance.now()+40));
+  }
+  loadingHeightReady=true;
+  scheduleLoadingFinish();
+  return;
+}
+applyIframeHeight(next);
+}
+function primeIframeHeight(){
+if(!iframe)return;
+heightReleaseAt=performance.now()+heightStabilizeMs;
+iframe.style.height=initialFrameHeight+"px";
+iframe.setAttribute("height",String(initialFrameHeight));
 }
 function scheduleViewport(){
 if(viewportTick)return;
@@ -270,6 +301,7 @@ function bindIframe(found){
 if(!found||binded)return;
 iframe=found;
 if(!iframe.id)iframe.id=iframeId;
+primeIframeHeight();
 styleIframe();
 binded=true;
 ensureQuickNav();
@@ -314,6 +346,6 @@ if(tryBind()||retryCount>30){clearInterval(retryTimer);retryTimer=null;if(observ
 },300);
 }
 ensureLoadingOverlay();
-if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",start);else start();
+start();
 setInterval(function(){if(binded)sendViewport()},700);
 })();
